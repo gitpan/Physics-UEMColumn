@@ -101,17 +101,19 @@ Internal functions related to implementing the AG model (see M&S original paper)
 sub L {
   my ($xi) = @_;
 
-  if ($xi >= 1) {
+  return 1 if $xi == 1;
+
+  if ($xi > 1) {
     my $sqrt = sqrt(($xi**2) - 1);
     return log($xi + $sqrt) / $sqrt;
+  } 
 
-  } elsif ( $xi >= 0) {
+  if ($xi >= 0) {
     my $sqrt = sqrt(1 - ($xi**2));
     return asin($sqrt) / $sqrt;
+  } 
 
-  } else {
-    die "xi is out of range";
-  }
+  die "xi is out of range";
 }
 
 sub L_t {
@@ -192,7 +194,7 @@ Joel Berger, E<lt>joel.a.berger@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Joel Berger
+Copyright (C) 2012-2013 by Joel Berger
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

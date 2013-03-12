@@ -1,6 +1,6 @@
 package Physics::UEMColumn;
 
-our $VERSION = '0.900';
+our $VERSION = '0.901';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -289,7 +289,6 @@ method propagate () {
 
     my $segment_result = $self->_evaluate_single_run();
     join_data( $result, $segment_result );
-    last if $self->debug;
   }
   
   my $stored_data = $self->pulse->data;
@@ -487,7 +486,7 @@ sub _setup_aliases {
     }
 
     no strict 'refs';
-    *{$caller . '::' . $short} = sub () { $full };
+    *{$caller . '::' . $short} = eval "sub () { '$full' }";
   }
 }
 
@@ -505,7 +504,7 @@ Joel Berger, E<lt>joel.a.berger@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Joel Berger
+Copyright (C) 2012-2013 by Joel Berger
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -12,7 +12,6 @@ Physics::UEMColumn::Photocathode - Class representing a photocathode for the Phy
   use Physics::UEMColumn alias => ':standard';
 
   my $photocathode = Photocathode->new(
-    energy_fermi => '5.3 eV',
     work_function => '4.25 eV',
   );
 
@@ -37,14 +36,6 @@ my $type_energy = num_of_unit( 'J' );
 
 =over
 
-=item C<energy_fermi>
-
-The Fermi energy of the material. Required. Unit: J
-
-=cut
-
-has 'energy_fermi' => ( isa => $type_energy, is => 'ro', required => 1 ); 
-
 =item C<work_function>
 
 The "work function" of the material. Rquired. Unit: J
@@ -68,6 +59,14 @@ Holder for a reference to the containing Column object. This should not be set m
 =cut
 
 has 'column' => ( isa => 'Physics::UEMColumn::Column', is => 'rw', predicate => 'has_column' );
+
+=item C<energy_fermi>
+
+The Fermi energy of the material. This was required in a previous version of the code (before using the Dowell result), it is no longer required nor used. Unit: J
+
+=cut
+
+has 'energy_fermi' => ( isa => $type_energy, is => 'ro', predicate => 'has_energy_fermi' ); 
 
 =back
 
@@ -100,7 +99,7 @@ method generate_pulse ( Num $num ) {
   my $delta_E = $e_laser - $work_function;
   my $velfront = sqrt( 2 * $delta_E / me );
 
-  my $eta_t = me * $e_fermi / 3 * ( $e_laser - $work_function ) / ( $e_laser + $e_fermi );
+  my $eta_t = me / 3 * ( $e_laser - $work_function );
   my $sigma_z = (($velfront*$tau)**2) / 2 + ( qe / ( 4 * me ) * $field * ($tau**2))**2;
 
   my $pulse = Physics::UEMColumn::Pulse->new(
@@ -112,7 +111,7 @@ method generate_pulse ( Num $num ) {
     eta_t    => $eta_t,
     eta_z    => $eta_t / 4,
     gamma_t  => 0,
-    gamma_z  => sqrt($sigma_z) * ( 0.06 * me * $velfront + qe / sqrt(2) * $field * $tau),
+    gamma_z  => sqrt($sigma_z) * ( me * $velfront + qe / sqrt(2) * $field * $tau),
   );
 
   return $pulse;
@@ -136,7 +135,7 @@ Joel Berger, E<lt>joel.a.berger@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Joel Berger
+Copyright (C) 2012-2013 by Joel Berger
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -25,7 +25,6 @@ use Method::Signatures;
 
 use MooseX::Types::NumUnit qw/num_of_unit/;
 use Physics::UEMColumn::Auxiliary ':constants';
-use MooseX::Types::NumUnit qw/num_of_unit/;
 
 # user specified attributes
 
@@ -104,15 +103,14 @@ has 'liouville_gamma2_z' => ( isa => 'Num', is => 'rw', lazy => 1, builder => '_
 
 # variance attribute initializers
 method _make_sigma_t () {
-  return (($self->width)**2) / 2;
+  return $self->initial_width ** 2 / 2;
 }
 method _make_sigma_z () {
-  return (($self->velocity * $self->duration)**2) / 2;
+  return $self->initial_length ** 2 / 2;
 }
 
 method _make_eta_t () {
-  #me * $energy_fermi / 3 * ( $energy_laser - $work_function ) / ( $energy_laser + $energy_fermi );
-  return 0;
+  return me * $self->excess_photoemission_energy / 3;
 }
 method _make_eta_z () {
   return $self->eta_t() / 4;
@@ -131,6 +129,26 @@ method _make_lg2_t () {
 method _make_lg2_z () {
   return $self->sigma_z * $self->eta_z;
 }
+
+# initialization-only attributes
+
+=item C<initial_width> / C<initial_length>
+
+These attributes are for convenience only. They may be used to initialize the variance attriutes above. They represent the initial half-width 1/e maximum (HW1/eM) width or length of the pulse. Unit: m
+
+=cut
+
+my $unit_length = num_of_unit('m');
+has 'initial_width'  => ( isa => $unit_length, is => 'ro', default => '1 mm' );
+has 'initial_length' => ( isa => $unit_length, is => 'ro', default => '1 mm' );
+
+=item C<initial_width> / C<initial_length>
+
+This attribute is for convenience only. It may be used to initialize the variance attriutes above. It represents the excess photoemission energy imparted to the electrons in the pulse by simple photoemission. Unit: J
+
+=cut
+
+has 'excess_photoemission_energy' => ( isa => num_of_unit('J'), is => 'ro', default => '0.5 eV' );
 
 # propagation history
 
@@ -160,7 +178,7 @@ Joel Berger, E<lt>joel.a.berger@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Joel Berger
+Copyright (C) 2012-2013 by Joel Berger
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
